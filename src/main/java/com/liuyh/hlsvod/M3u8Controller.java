@@ -5,6 +5,7 @@ import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.log4j.Log4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
@@ -18,9 +19,13 @@ import static cn.hutool.core.util.StrUtil.*;
 @RestController
 public class M3u8Controller {
     @GetMapping("/m3u8")
-    public String getM3u8(String app, String stream, String startTime, String endTime,String date) {
+    public String getM3u8(@RequestBody M3U8Entity m3U8Entity) {
         //时间格式应为[2006][01][02]/[15][04][05].ts;，
         // 例如2006年01月02日15点04分05秒，startTime = "150405",date = "20060102"
+        String app = m3U8Entity.getApp();
+        String stream = m3U8Entity.getStream();
+        String startTime = m3U8Entity.getStartTime();
+        String date = m3U8Entity.getDate();
         String srsHttpBasePath = "/home/liuyh/srs/trunk/objs/nginx/html/";
         String hlsvodSavePath = "/home/liuyh/vod/";
         String tsFilePath = "/home/liuyh/srs/trunk/objs/nginx/html/"+app+C_SLASH+stream+C_SLASH+date+C_SLASH;
@@ -74,9 +79,10 @@ public class M3u8Controller {
         String srsHttpBasePath = "C:\\Users\\liuyo\\Desktop\\fsdownload\\";
         String hlsvodSavePath = "C:\\Users\\liuyo\\Desktop\\fsdownload\\vod\\";
         String tsFilePath = "/home/liuyh/srs/trunk/objs/nginx/html/"+app+C_SLASH+stream+C_SLASH+date+C_SLASH;
-        String tsFrom = srsHttpBasePath+app+C_SLASH+stream;
-        String tsTo = hlsvodSavePath+app+C_SLASH+stream+C_SLASH+date+startTime;
-        String tsDir = stream+C_SLASH+date+C_SLASH;
+        String tsFrom = srsHttpBasePath+app+C_SLASH+stream+C_SLASH+date;
+        String fullTime = date+startTime;
+        String tsTo = hlsvodSavePath+app+C_SLASH+stream+C_SLASH;
+        String tsDir = fullTime+C_SLASH+date+C_SLASH;
         String m3u8Start = "#EXTM3U" + C_LF +
                 "#EXT-X-PLAYLIST-TYPE:VOD" + C_LF +
                 "#EXT-X-TARGETDURATION:10\n";
@@ -104,55 +110,16 @@ public class M3u8Controller {
         }
         sbContent.append(m3u8End);
         if (!FileUtil.exist(app)){
-            FileUtil.copy(tsFrom,tsTo,true);
+            FileUtil.copy(tsFrom,tsTo+fullTime,true);
         }else {
-            FileUtil.copy(tsFrom,tsTo,true);
+            FileUtil.copy(tsFrom,tsTo+fullTime,true);
         }
         //拼写 m3u8内容的 sbContent写入文件
-        FileWriter writer = new FileWriter(tsTo+C_SLASH+stream+"-"+date+".m3u8");
+        FileWriter writer = new FileWriter(tsTo+C_SLASH+stream+"-"+fullTime+".m3u8");
         writer.write(sbContent.toString());
         //返回 m3u8 文件 http地址
-        return "http://172.31.234.199:8080/vod"+app+C_SLASH+stream+"-"+date+".m3u8";
+        return "http://172.31.234.199:8080/vod"+app+C_SLASH+stream+"-"+fullTime+".m3u8";
     }
 
-//    public ResultBean getM3u8UrlByTime(String app, String stream, String startTime, String endTime) {
-//        //当前要找的m3u8文件的地址，m3u8Path为配置项，和hls配置同步
-//        String filePath = m3u8Path + app + "/" + stream + ".m3u8";
-//        //生成文件
-//        File m3u8File = new File(filePath);
-//        //读取m3U8文件存储到list中，方便后续处理
-//        List<String> list = getFileList(m3u8File);
-//        if (CollectionUtils.isEmpty(list)) {
-//            throw new ServiceException(ErrorCodeEnum.FILE_TOLIST_ERROR);
-//        }
-//        //把时间转换成Long
-//        Long startTimeInt = Long.valueOf(startTime);
-//        Long endTimeInt = Long.valueOf(endTime);
-//
-//        //获取新的m3u8的list，此方法里实现逻辑大概是：将m3u8文件的前5行保留，
-//        // 循环判断含有ts字样的行数，截取这些行数中的时间戳，在开始结束时间之内的就保留
-//        // 保留的ts的前一行也留下，组成最终需要的newFileList
-//        List<String> newFileList = getNewFileListByTime(list, startTimeInt, endTimeInt, stream);
-//        if (CollectionUtils.isEmpty(newFileList)) {
-//            throw new ServiceException(ErrorCodeEnum.FILE_TOLIST_ERROR);
-//        }
-//        //添加结束标志
-//        newFileList.add("#EXT-X-ENDLIST");
-//        //将newFileList写入新文件--新文件路径
-//        String newM3u8Path = app + "/" + stream + "_" + startTime + "_" + endTime + ".m3u8";
-//        String newFilePath = m3u8Path + newM3u8Path;
-//        //写入新的文件，逻辑为：把list写入文件
-//        createNewFile(newFilePath, newFileList);
-//        log.info("create New m3u8 File success");
-//
-//
-//        //更改原ts的文件夹的名称，大概逻辑为复制源ts到新的目录下，
-//        // 此步骤若hls配置不清除ts或者根据业务需要定期清除ts，可不做
-//        String tsDirPath = m3u8Path + app + "/" + stream;
-//        String tsDirPathNew = m3u8Path + app + "/" + stream + "_" + backupFix;
-//        copyFolderService.copyFolder(tsDirPath, tsDirPathNew, app, stream);
-//        //返回新的m3u8路径，用于点播
-//        return new ResultBean(newM3u8Path);
-//    }
 
 }
