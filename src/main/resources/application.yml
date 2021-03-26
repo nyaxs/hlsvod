@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: vod-hls
+server:
+  port: 1936
+logging:
+  file:
+    name: /home/liuyh/logs/${spring.application.name}.log
