@@ -2,7 +2,7 @@ spring:
   application:
     name: vod-hls
 server:
-  port: 1936
+  port: 1938
 logging:
   file:
     name: /home/liuyh/logs/${spring.application.name}.log

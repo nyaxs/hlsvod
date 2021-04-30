@@ -5,9 +5,7 @@ import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,15 +18,15 @@ import static cn.hutool.core.util.StrUtil.*;
 @Slf4j
 @RestController
 public class M3u8Controller {
-    @GetMapping("/m3u8")
-    public String getM3u8(@RequestBody M3U8Entity m3U8Entity) {
+    @PostMapping("/m3u8")
+    public String getM3u8(@RequestParam("app") String app, @RequestParam("stream") String stream,@RequestParam("startTime") String startTime,@RequestParam("date") String date) {
         //时间格式应为[2006][01][02]/[15][04][05].ts;，
         // 例如2006年01月02日15点04分05秒，startTime = "150405",date = "20060102"
-        log.info("----传入参数值为----{}",m3U8Entity);
-        String app = m3U8Entity.getApp();
-        String stream = m3U8Entity.getStream();
-        String startTime = m3U8Entity.getStartTime();
-        String date = m3U8Entity.getDate();
+//        log.info("----传入参数值为----{}",m3U8Entity);
+//        String app = m3U8Entity.getApp();
+//        String stream = m3U8Entity.getStream();
+//        String startTime = m3U8Entity.getStartTime();
+//        String date = m3U8Entity.getDate();
         //需要补充参数合法性校验
         //if(valid) do
         String fullTime = date+startTime;
@@ -60,7 +58,10 @@ public class M3u8Controller {
         tsNamesNumber.sort(Comparator.naturalOrder());
         //生成 m3u8 文件
         for (int i = 0; i <tsNamesNumber.size(); i++) {
-            if (tsNamesNumber.get(i) >from){
+            if (tsNamesNumber.get(i) >from && tsNamesNumber.get(i)<100000){
+                sbContent.append(tsDesc).append(tsDir).append("0").append(tsNamesNumber.get(i)).append(".ts\n");
+            }
+            else if (tsNamesNumber.get(i) >from){
                 sbContent.append(tsDesc).append(tsDir).append(tsNamesNumber.get(i)).append(".ts\n");
             }
         }
@@ -77,7 +78,7 @@ public class M3u8Controller {
         FileWriter writer = new FileWriter(tsTo+C_SLASH+stream+"-"+fullTime+".m3u8");
         writer.write(sbContent.toString());
         //返回 m3u8 文件 http地址
-        return "http://172.31.234.199:8080/"+app+C_SLASH+stream+C_SLASH+stream+"-"+fullTime+".m3u8";
+        return "http://172.31.234.199:1938/"+app+C_SLASH+stream+C_SLASH+stream+"-"+fullTime+".m3u8";
     }
 
     @GetMapping("/test")

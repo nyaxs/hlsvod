@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Access-Control-Allow-Origin" content="*">
   <title>播放器</title>
   <style type="text/css">
     html, body {width:100%;height:100%;margin:auto;overflow: hidden;}
@@ -17,19 +16,17 @@
 </head>
 <body>
 <div id="mse"></div>
-<script src="//cdn.jsdelivr.net/npm/xgplayer@1.1.4/browser/index.js" charset="utf-8"></script>
-<script src="//cdn.jsdelivr.net/npm/xgplayer-hls.js/browser/index.js" charset="utf-8"></script><script>
-  let player = new HlsJsPlayer({
-    "id": "mse",
-    "playsinline": true,
-    "whitelist": [
-      ""
-    ],
-    "url": "http://172.31.234.199:1936/live/33/33-20210318173054.m3u8",
-    "autoplay": true,
-    "fluid": true
+<script src="//sf1-ttcdn-tos.pstatp.com/obj/unpkg/xgplayer/2.9.6/browser/index.js" charset="utf-8"></script>
+<script src="//sf1-ttcdn-tos.pstatp.com/obj/unpkg/xgplayer-hls.js/2.2.2/browser/index.js" charset="utf-8"></script>
+<script type="text/javascript">
+  new window.HlsJsPlayer({
+    id: 'mse',
+    url: 'http://172.31.234.199:1938/live/3619101/3619101-20210329091810.m3u8',
+    autoplay: true,
+    playsinline: true,
+    height: window.innerHeight,
+    width: window.innerWidth
   });
-
 </script>
 </body>
 </html>
